@@ -136,7 +136,7 @@
 <th>VIEW_RELATED</th>
 </tr>
 <tr onclick="table_onSelectMasterRow(this, 1, 0)" class="currentrow">
-<td class="currentcell">SYS_C007511</td>
+<td class="currentcell">SYS_C007523</td>
 <td class="currentcell">Primary_Key</td>
 <td class="currentcell">null</td>
 <td class="currentcell">null</td>
@@ -149,19 +149,19 @@
 <td class="currentcell">GENERATED&nbsp;NAME</td>
 <td class="currentcell">null</td>
 <td class="currentcell">null</td>
-<td class="currentcell">20-MAR-24</td>
+<td class="currentcell">21-MAR-24</td>
 <td class="currentcell">VETERINARIAMF</td>
-<td class="currentcell">SYS_C007511</td>
+<td class="currentcell">SYS_C007523</td>
 <td class="currentcell">null</td>
 <td class="currentcell">null</td>
 </tr>
 <tr onclick="table_onSelectMasterRow(this, 1, 1)">
-<td>SYS_C007512</td>
+<td>SYS_C007524</td>
 <td>Foreign_Key</td>
 <td>null</td>
 <td>VETERINARIAMF</td>
 <td>CLIENTES</td>
-<td>SYS_C007505</td>
+<td>SYS_C007520</td>
 <td>NO&nbsp;ACTION</td>
 <td>ENABLED</td>
 <td>NOT&nbsp;DEFERRABLE</td>
@@ -169,19 +169,19 @@
 <td>GENERATED&nbsp;NAME</td>
 <td>null</td>
 <td>null</td>
-<td>20-MAR-24</td>
+<td>21-MAR-24</td>
 <td>null</td>
 <td>null</td>
 <td>null</td>
 <td>null</td>
 </tr>
 <tr onclick="table_onSelectMasterRow(this, 1, 2)">
-<td>SYS_C007513</td>
+<td>SYS_C007525</td>
 <td>Foreign_Key</td>
 <td>null</td>
 <td>VETERINARIAMF</td>
 <td>MASCOTAS</td>
-<td>SYS_C007509</td>
+<td>SYS_C007521</td>
 <td>NO&nbsp;ACTION</td>
 <td>ENABLED</td>
 <td>NOT&nbsp;DEFERRABLE</td>
@@ -189,7 +189,7 @@
 <td>GENERATED&nbsp;NAME</td>
 <td>null</td>
 <td>null</td>
-<td>20-MAR-24</td>
+<td>21-MAR-24</td>
 <td>null</td>
 <td>null</td>
 <td>null</td>
@@ -318,6 +318,14 @@
 <th>STATUS</th>
 <th>TABLE_NAME</th>
 </tr>
+<tr onclick="table_onSelectMasterRow(this, 7, 0)" class="currentrow">
+<td class="currentcell">ACTUALIZAR_STOCK_DESPUES_COMPRA</td>
+<td class="currentcell">AFTER&nbsp;EACH&nbsp;ROW</td>
+<td class="currentcell">VETERINARIAMF</td>
+<td class="currentcell">INSERT</td>
+<td class="currentcell">ENABLED</td>
+<td class="currentcell">CITAS</td>
+</tr>
 </table>
 <br/>
 <hr/>
@@ -330,6 +338,21 @@
 </div>
 <br/>
 <div id="ChildReports.4">
+<div id="Child.0.0.4">
+<div class="currentchildreport"><pre>
+TRIGGER actualizar_stock_despues_compra
+AFTER INSERT ON Citas
+FOR EACH ROW
+BEGIN
+    IF :NEW.Mascota_id IS NOT NULL THEN
+        UPDATE Inventario
+        SET Stock = Stock - 1
+        WHERE Medicamento_id = :NEW.Mascota_id;
+    END IF;
+END;
+</pre>
+</div>
+</div>
 </div>
 </div>
 </div>
@@ -346,7 +369,7 @@
 </tr>
 <tr onclick="table_onSelectMasterRow(this, 8, 0)" class="currentrow">
 <td class="currentcell">VETERINARIAMF</td>
-<td class="currentcell">VISTA_CITAS_PENDIENTES</td>
+<td class="currentcell">VISTA_CITAS</td>
 <td class="currentcell">VIEW</td>
 <td class="currentcell">VETERINARIAMF</td>
 <td class="currentcell">CITAS</td>
@@ -354,8 +377,56 @@
 </tr>
 <tr onclick="table_onSelectMasterRow(this, 8, 1)">
 <td>VETERINARIAMF</td>
-<td>VISTA_CITAS</td>
+<td>VISTA_CITAS_PENDIENTES</td>
 <td>VIEW</td>
+<td>VETERINARIAMF</td>
+<td>CITAS</td>
+<td>TABLE</td>
+</tr>
+<tr onclick="table_onSelectMasterRow(this, 8, 2)">
+<td>VETERINARIAMF</td>
+<td>ACTUALIZARCITAS</td>
+<td>PROCEDURE</td>
+<td>VETERINARIAMF</td>
+<td>CITAS</td>
+<td>TABLE</td>
+</tr>
+<tr onclick="table_onSelectMasterRow(this, 8, 3)">
+<td>VETERINARIAMF</td>
+<td>CREARCITAS</td>
+<td>PROCEDURE</td>
+<td>VETERINARIAMF</td>
+<td>CITAS</td>
+<td>TABLE</td>
+</tr>
+<tr onclick="table_onSelectMasterRow(this, 8, 4)">
+<td>VETERINARIAMF</td>
+<td>ELIMINARCITAS</td>
+<td>PROCEDURE</td>
+<td>VETERINARIAMF</td>
+<td>CITAS</td>
+<td>TABLE</td>
+</tr>
+<tr onclick="table_onSelectMasterRow(this, 8, 5)">
+<td>VETERINARIAMF</td>
+<td>CITAS_PACKAGE</td>
+<td>PACKAGE</td>
+<td>VETERINARIAMF</td>
+<td>CITAS</td>
+<td>TABLE</td>
+</tr>
+<tr onclick="table_onSelectMasterRow(this, 8, 6)">
+<td>VETERINARIAMF</td>
+<td>CITAS_PACKAGE</td>
+<td>PACKAGE&nbsp;BODY</td>
+<td>VETERINARIAMF</td>
+<td>CITAS</td>
+<td>TABLE</td>
+</tr>
+<tr onclick="table_onSelectMasterRow(this, 8, 7)">
+<td>VETERINARIAMF</td>
+<td>ACTUALIZAR_STOCK_DESPUES_COMPRA</td>
+<td>TRIGGER</td>
 <td>VETERINARIAMF</td>
 <td>CITAS</td>
 <td>TABLE</td>
@@ -398,22 +469,100 @@
 </table>
 </div>
 </div>
+<div id="Child.0.2.5">
+<div class="childreport"><table id="Table.11" cellpadding="0" cellspacing="0" summary="">
+<tr>
+<th>OWNER</th>
+<th>NAME</th>
+<th>TYPE</th>
+<th>REFERENCED_OWNER</th>
+<th>REFERENCED_NAME</th>
+<th>REFERENCED_TYPE</th>
+</tr>
+</table>
+</div>
+</div>
+<div id="Child.0.3.5">
+<div class="childreport"><table id="Table.12" cellpadding="0" cellspacing="0" summary="">
+<tr>
+<th>OWNER</th>
+<th>NAME</th>
+<th>TYPE</th>
+<th>REFERENCED_OWNER</th>
+<th>REFERENCED_NAME</th>
+<th>REFERENCED_TYPE</th>
+</tr>
+</table>
+</div>
+</div>
+<div id="Child.0.4.5">
+<div class="childreport"><table id="Table.13" cellpadding="0" cellspacing="0" summary="">
+<tr>
+<th>OWNER</th>
+<th>NAME</th>
+<th>TYPE</th>
+<th>REFERENCED_OWNER</th>
+<th>REFERENCED_NAME</th>
+<th>REFERENCED_TYPE</th>
+</tr>
+</table>
+</div>
+</div>
+<div id="Child.0.5.5">
+<div class="childreport"><table id="Table.14" cellpadding="0" cellspacing="0" summary="">
+<tr>
+<th>OWNER</th>
+<th>NAME</th>
+<th>TYPE</th>
+<th>REFERENCED_OWNER</th>
+<th>REFERENCED_NAME</th>
+<th>REFERENCED_TYPE</th>
+</tr>
+</table>
+</div>
+</div>
+<div id="Child.0.6.5">
+<div class="childreport"><table id="Table.15" cellpadding="0" cellspacing="0" summary="">
+<tr>
+<th>OWNER</th>
+<th>NAME</th>
+<th>TYPE</th>
+<th>REFERENCED_OWNER</th>
+<th>REFERENCED_NAME</th>
+<th>REFERENCED_TYPE</th>
+</tr>
+</table>
+</div>
+</div>
+<div id="Child.0.7.5">
+<div class="childreport"><table id="Table.16" cellpadding="0" cellspacing="0" summary="">
+<tr>
+<th>OWNER</th>
+<th>NAME</th>
+<th>TYPE</th>
+<th>REFERENCED_OWNER</th>
+<th>REFERENCED_NAME</th>
+<th>REFERENCED_TYPE</th>
+</tr>
+</table>
+</div>
+</div>
 </div>
 </div>
 </div>
 <div id="Master.6">
 <div class="masterreport">
-<table id="Table.11" cellpadding="0" cellspacing="0" summary="">
+<table id="Table.17" cellpadding="0" cellspacing="0" summary="">
 <th>NAME</th>
 <th>VALUE</th>
 </tr>
 <tr>
 <td>CREATED</td>
-<td>20-MAR-24</td>
+<td>21-MAR-24</td>
 </tr>
 <tr>
 <td>LAST_DDL_TIME</td>
-<td>20-MAR-24</td>
+<td>21-MAR-24</td>
 </tr>
 <tr>
 <td>OWNER</td>
@@ -660,7 +809,7 @@
 </div>
 <div id="Master.7">
 <div class="masterreport">
-<table id="Table.12" cellpadding="0" cellspacing="0" summary="">
+<table id="Table.18" cellpadding="0" cellspacing="0" summary="">
 <tr>
 <th>PARTITION_NAME</th>
 <th>LAST_ANALYZED</th>
@@ -686,7 +835,7 @@
 </div>
 <div id="Master.8">
 <div class="masterreport">
-<table id="Table.13" cellpadding="0" cellspacing="0" summary="">
+<table id="Table.19" cellpadding="0" cellspacing="0" summary="">
 <tr>
 <th>INDEX_OWNER</th>
 <th>INDEX_NAME</th>
@@ -699,9 +848,9 @@
 <th>JOIN_INDEX</th>
 <th>COLUMNS</th>
 </tr>
-<tr onclick="table_onSelectMasterRow(this, 13, 0)" class="currentrow">
+<tr onclick="table_onSelectMasterRow(this, 19, 0)" class="currentrow">
 <td class="currentcell">VETERINARIAMF</td>
-<td class="currentcell">SYS_C007511</td>
+<td class="currentcell">SYS_C007523</td>
 <td class="currentcell">UNIQUE</td>
 <td class="currentcell">VALID</td>
 <td class="currentcell">NORMAL</td>
@@ -724,7 +873,7 @@
 <br/>
 <div id="ChildReports.8">
 <div id="Child.0.0.8">
-<div class="currentchildreport"><table id="Table.14" cellpadding="0" cellspacing="0" summary="">
+<div class="currentchildreport"><table id="Table.20" cellpadding="0" cellspacing="0" summary="">
 <tr>
 <th>INDEX_OWNER</th>
 <th>INDEX_NAME</th>
@@ -738,9 +887,9 @@
 <th>COLLATED_COLUMN_ID</th>
 <th>COLUMN_EXPRESSION</th>
 </tr>
-<tr onclick="table_onSelectRow(this, 14)" class="currentrow">
+<tr onclick="table_onSelectRow(this, 20)" class="currentrow">
 <td class="currentcell">VETERINARIAMF</td>
-<td class="currentcell">SYS_C007511</td>
+<td class="currentcell">SYS_C007523</td>
 <td class="currentcell">VETERINARIAMF</td>
 <td class="currentcell">CITAS</td>
 <td class="currentcell">CITA_ID</td>
