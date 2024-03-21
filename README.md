@@ -1,7 +1,7 @@
-﻿# Lenguaje-de-Bases-de-datos Q1'24
-# Desglose de Contribuciones del Equipo
+﻿# Lenguajes de Bases de Datos Q1'24
+# Desglose de Contribuciones del Equipo (Grupo 3)
 
-## Salim [
+## Salim
 
 ### Funciones
 - `ObtenerPrecioTotalMedicamentos`: Calcula el precio total de los medicamentos.
@@ -24,9 +24,9 @@
 - `paquete_actualizar_stock.py`
 
 ### Otros
-- Investigación sobre la conexión a la base de datos mediante Python. ]
+- Investigación sobre la conexión a la base de datos mediante Python. 
 
-## Gabriel [
+## Gabriel
 
 ### Vistas
 - `Vista_Clientes_Mascotas`: Muestra la relación entre clientes y mascotas.
@@ -44,9 +44,9 @@
 
 ### Cursores
 - Cursor para recorrer las citas pendientes.
-- Cursor para obtener mascotas con edades menores a un valor específico. ]
+- Cursor para obtener mascotas con edades menores a un valor específico. 
 
-## Daniel [
+## Daniel
 
 ### Tablas
 - `Clientes`
@@ -58,14 +58,14 @@
 - `Mascotas`
 
 ### Procedimientos
-- CRUD para `Clientes`, `Mascotas`, `Juguetes`, y `Medicamentos`. ]
+- CRUD para `Clientes`, `Mascotas`, `Juguetes`, y `Medicamentos`. 
 
-## Jeancarlo [
+## Jeancarlo 
 
 ### Procedimientos
-- CRUD para `Alimento`, `Citas`, `Historial`, y `Inventario`. ]
+- CRUD para `Alimento`, `Citas`, `Historial`, y `Inventario`. 
 
-## Roberto [
+## Roberto 
 
 ### Tablas
 - `Inventario`
@@ -74,6 +74,8 @@
 - `Vista_Citas`
 - `Vista_Clientes`
 - `Vista_Productos`
+  - (`PACKAGE`)
+  - (`PACKAGE BODY`)
 
 ### Paquetes
 - `productos_package`
@@ -83,4 +85,4 @@
 ### Triggers
 - `actualizar_stock_despues_compra`: Actualiza el stock después de una compra.
 - `registrar_historial_citas`: Registra el historial de citas.
-- `actualizar_precio_promedio_despues_venta`: Actualiza el precio promedio después de una venta. ]
+- `actualizar_precio_promedio_despues_venta`: Actualiza el precio promedio después de una venta. 
