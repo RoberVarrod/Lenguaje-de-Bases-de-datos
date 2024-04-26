@@ -7,6 +7,9 @@ def run_script(script_name):
         print(f"Error ejecutando script: {e}")
 
 def main():
+    INVALID_OPTION_MESSAGE = "Opcion invalida. Por favor ingrese una opcion valida."
+
+    
     print("Bienvenido a la interfaz Python de la veterinaria!")
     print("Seleccione el tipo de script que desea correr:")
     print("1. Vistas")
@@ -29,10 +32,10 @@ def main():
         if 1 <= view_choice <= len(view_scripts):
             run_script(view_scripts[view_choice - 1])
         else:
-            print("Opcion invalida. Por favor ingrese una opcion valida.")
+            print(INVALID_OPTION_MESSAGE)
 
     elif choice == '2':
-        run_script("paquete_actualizar_stock.py")
+        run_script("proc/paq_alm/paquete_actualizar_stock.py")
 
     elif choice == '3':
         print("Elija una funcion a ejecutar:")
@@ -48,9 +51,9 @@ def main():
         if 1 <= function_choice <= len(function_scripts):
             run_script(function_scripts[function_choice - 1])
         else:
-            print("Opcion invalida. Por favor ingrese una opcion valida.")
+            print(INVALID_OPTION_MESSAGE)
     else:
-        print("Opcion invalida. Por favor ingrese una opcion valida.")
+        print(INVALID_OPTION_MESSAGE)
 
 if __name__ == "__main__":
     main()

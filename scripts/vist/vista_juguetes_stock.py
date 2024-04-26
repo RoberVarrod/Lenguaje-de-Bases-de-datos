@@ -7,8 +7,14 @@ except Exception as err:
 else:
     try:
         cur = conn.cursor()
-        cur.execute('SELECT * FROM VISTA_JUGUETES_STOCK')
+        cur.execute('SELECT "JUGUETE_ID", "NOMBRE", "STOCK" FROM VISTA_JUGUETES_STOCK')
         rows = cur.fetchall()
+
+        # Print column names
+        column_names = [col[0] for col in cur.description]
+        print("Columnas: ", ", ".join(column_names))
+        print("-" * 80)
+
         for row in rows:
             print(row)
     except Exception as err:

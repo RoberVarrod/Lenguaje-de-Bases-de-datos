@@ -1,19 +1,30 @@
 import cx_Oracle
+
 try:
-    #Crear conexion
-    conn=cx_Oracle.connect('VeterinariaMF/admin1234@localhost:1521/orcl')
+    # Crear conexión
+    conn = cx_Oracle.connect('VeterinariaMF/admin1234@localhost:1521/orcl')
 except Exception as err:
-    print('Error al crear la conexion:',err)
+    print('Error al crear la conexión:', err)
 else:
     try:
-        #Crear cursor
+        # Crear cursor
         cur = conn.cursor()
-        id = [input('Ingrese el ID del producto (dejar vacio para total): ')]
-        result = cur.callfunc('CalcularPrecioTotalInventario', int, id)
+
+        # Definir parámetro de entrada
+        id = input('Ingrese el ID del producto (dejar vacío para total): ')
+        if id.strip(): 
+            id = int(id)  
+        else:
+            id = None  
+
+        # Llamar a la función
+        result = cur.callfunc('CalcularPrecioTotalInventario', cx_Oracle.NUMBER, [id])
+
+        # Imprimir resultado
+        print('Resultado: ', result)
+
     except Exception as err:
-        print('Error al ejecutar la funcion:',err)
-    else:
-        print('Resultado: ',result)
+        print('Error al ejecutar la función:', err)
     finally:
         cur.close()
 finally:
