@@ -1,0 +1,2010 @@
+--Scriptjuntofinal
+---TABLAS
+
+CREATE TABLE Clientes (
+    Cliente_id INT PRIMARY KEY,
+    Nombre VARCHAR(100),
+    Apellido VARCHAR(100),
+    Direccion varchar(100),
+    Telefono VARCHAR(20),
+    Correo VARCHAR(100)
+);
+
+CREATE TABLE Medicamentos (
+    Medicamento_id INT PRIMARY KEY,
+    Nombre VARCHAR(100),
+    Descripcion varchar(200),
+    Stock INT,
+    Precio number(10, 2)
+);
+
+CREATE TABLE Juguetes (
+    Juguete_id INT PRIMARY KEY,
+    Nombre VARCHAR(100),
+    Descripcion varchar(200),
+    Precio number(10, 2),
+    Stock INT
+);
+
+CREATE TABLE Alimentos (
+    Alimento_id INT PRIMARY KEY,
+    Nombre VARCHAR(100),
+    Descripcion varchar(200),
+    Stock INT,
+    Precio number(10, 2)
+);
+
+CREATE TABLE Citas (
+    Cita_id INT PRIMARY KEY,
+    Cliente_id INT,
+    Mascota_id INT,
+    Fecha DATE,
+    Motivo varchar(200),
+    FOREIGN KEY (Cliente_id) REFERENCES Clientes(Cliente_id),
+    FOREIGN KEY (Mascota_id) REFERENCES Mascotas(Mascota_id)
+);
+
+CREATE TABLE Historial (
+    Historial_id INT PRIMARY KEY,
+    Mascota_id INT,
+    Fecha DATE,
+    Descripcion varchar(200),
+    FOREIGN KEY (Mascota_id) REFERENCES Mascotas(Mascota_id)
+);
+
+CREATE TABLE Mascotas (
+    Mascota_id INT PRIMARY KEY,
+    Nombre VARCHAR(100),
+    Especie VARCHAR(100),
+    Edad INT,
+    Cliente_id INT,
+    Raza VARCHAR(50),
+    FOREIGN KEY (Cliente_id) REFERENCES Clientes(Cliente_id)
+);
+
+CREATE TABLE Inventario (
+    Inventario_id INT PRIMARY KEY,
+    Nombre_producto VARCHAR(100),
+    Precio_producto DECIMAL(10, 2),
+    Medicamento_id INT,
+    Juguete_id INT,
+    Alimento_id INT,
+    FOREIGN KEY (Medicamento_id) REFERENCES Medicamentos(Medicamento_id),
+    FOREIGN KEY (Juguete_id) REFERENCES Juguetes(Juguete_id),
+    FOREIGN KEY (Alimento_id) REFERENCES Alimentos(Alimento_id)
+);
+
+
+--PROCEDIMIENTOS
+
+--Crud clientes
+--Crear
+CREATE OR REPLACE PROCEDURE InsertarCliente(
+    p_Nombre VARCHAR2,
+    p_Apellido VARCHAR2,
+    p_Direccion varchar2,
+    p_Telefono INT,
+    p_Correo varchar2
+)
+AS
+BEGIN
+    INSERT INTO clientes (cliente_id, nombre, apellido, direccion, telefono, correo) 
+    VALUES ((SELECT COALESCE(MAX(cliente_id), 0) + 1 FROM clientes), p_Nombre, p_Apellido, p_Direccion, p_Telefono, p_Correo);
+END;
+
+BEGIN
+    InsertarCliente('Juliana','Valdez', 'Santa Cruz' , 12345566, 'jvsc@gmail.com' );
+END;
+
+
+--Read
+CREATE OR REPLACE PROCEDURE ObtenerClientes
+AS
+BEGIN
+    FOR cliente IN (SELECT * FROM Clientes) LOOP
+        DBMS_OUTPUT.PUT_LINE(cliente.cliente_id || ', ' || cliente.Nombre || ', ' || cliente.apellido || ', ' || cliente.direccion || ', ' || cliente.telefono || ', ' || cliente.correo);
+    END LOOP;
+END;
+
+set serveroutput on;
+ exec   ObtenerClientes;
+
+--Update
+
+create or replace NONEDITIONABLE PROCEDURE ActualizarCliente(
+    p_cliente_id INT,
+    p_Nombre VARCHAR2,
+    p_apellido VARCHAR2,
+    p_direccion varchar2,
+    p_telefono INT,
+    p_correo varchar2
+)
+AS
+BEGIN
+    UPDATE clientes 
+    SET Nombre = p_Nombre, apellido = p_apellido, direccion = p_direccion, telefono = p_telefono, correo = p_correo 
+    WHERE cliente_id = p_cliente_id;
+END;
+
+--Delete
+
+
+CREATE OR REPLACE PROCEDURE EliminarCliente(
+    p_Cliente_id INT
+)
+AS
+BEGIN
+    DELETE FROM Clientes WHERE cliente_id = p_Cliente_id;
+END;
+
+
+exec eliminarcliente(2);
+
+
+
+
+--Crud Mascotas
+
+--Crear
+CREATE OR REPLACE PROCEDURE InsertarMascota(
+    p_Nombre VARCHAR2,
+    p_Especie VARCHAR2,
+    p_Edad INT,
+    p_Cliente_id INT,
+    p_Raza VARCHAR2
+)
+AS
+BEGIN
+    INSERT INTO Mascotas (Mascota_id ,Nombre, Especie, Edad, Cliente_id, Raza) 
+    VALUES ((SELECT COALESCE(MAX(mascota_id), 0) + 1 FROM mascotas), p_Nombre, p_Especie, p_Edad, p_Cliente_id, p_Raza);
+END;
+
+BEGIN
+    InsertarMascota('Minor','Gato', 10 , 6 ,'Persa');
+END;
+
+
+
+
+
+
+-- READ
+CREATE OR REPLACE PROCEDURE ObtenerMascotas
+AS
+BEGIN
+    FOR mascota IN (SELECT * FROM Mascotas) LOOP
+        DBMS_OUTPUT.PUT_LINE(mascota.Mascota_id || ', ' || mascota.Nombre || ', ' || mascota.Especie || ', ' || mascota.Edad || ', ' || mascota.Cliente_id || ', ' || mascota.Raza);
+    END LOOP;
+END;
+
+BEGIN
+    ObtenerMascotas;
+END;
+
+
+--Update
+CREATE OR REPLACE PROCEDURE ActualizarMascota(
+    p_Mascota_id INT,
+    p_Nombre VARCHAR2,
+    p_Especie VARCHAR2,
+    p_Edad INT,
+    p_Cliente_id INT,
+    p_Raza VARCHAR2
+)
+AS
+BEGIN
+    UPDATE Mascotas 
+    SET Nombre = p_Nombre, Especie = p_Especie, Edad = p_Edad, Cliente_id = p_Cliente_id, Raza = p_Raza 
+    WHERE Mascota_id = p_Mascota_id;
+END;
+
+EXEC ActualizarMascota(1, 'Nuevo nombre', 'Nueva especie', 5, 1, 'Nueva raza');
+
+
+-- Delete
+CREATE OR REPLACE PROCEDURE EliminarMascota(
+    p_Mascota_id INT
+)
+AS
+BEGIN
+    DELETE FROM Mascotas WHERE Mascota_id = p_Mascota_id;
+END;
+
+exec eliminarmascota(1);
+
+
+--Crud alimentos
+
+--Crear alimentos
+CREATE OR REPLACE PROCEDURE CrearAlimento (
+    p_Nombre IN VARCHAR2,
+    p_Descripcion IN VARCHAR2,
+    p_Stock IN NUMBER,
+    p_Precio IN NUMBER
+    
+)
+IS
+BEGIN
+    INSERT INTO alimentos (alimento_id, Nombre, descripcion, stock, precio)
+    VALUES ((SELECT COALESCE(MAX(alimento_id), 0) + 1 FROM alimentos), p_nombre, p_descripcion, p_stock, p_precio);
+    COMMIT; 
+    DBMS_OUTPUT.PUT_LINE('Nuevo alimento agregado exitosamente.');
+EXCEPTION
+    WHEN OTHERS THEN
+        ROLLBACK;
+        DBMS_OUTPUT.PUT_LINE('Error: ' || SQLCODE || ' - ' || SQLERRM);
+END CrearAlimento;
+/
+--ejecucion
+set serveroutput on;
+execute CrearAlimento('Pro pet Joven','Alimento Para Perros Jovenes, nutrición balanceada y altamente digestible 5K.','12','7000');
+execute CrearAlimento('Galletoas Waldito','Galletas con muchas vitaminas 1K.','12','8000');
+execute CrearAlimento('Galletas para gato','Galletas con muchas vitaminas 1K.','12','9000');
+execute CrearAlimento('Alimento para perro bebe','Alimento Para Perros Jovenes, nutrición balanceada y altamente digestible 5K.','12','10000');
+select * from alimentos;
+
+
+
+
+------------------------------------------------------------------------------------------------------
+--editar alimentos
+CREATE OR REPLACE PROCEDURE ActualizarAlimento (
+    p_Alimento_id IN INT,
+    p_Nombre IN VARCHAR2,
+    p_Descripcion IN VARCHAR2,
+    p_Stock IN NUMBER,
+    p_Precio IN NUMBER
+)
+IS
+BEGIN
+    UPDATE alimentos
+    SET Nombre = p_Nombre,
+        descripcion = p_descripcion,
+        stock = p_stock,
+        precio = p_precio
+       
+    WHERE Alimento_id = p_alimento_id;
+    COMMIT; 
+    DBMS_OUTPUT.PUT_LINE('Alimento actualizado exitosamente.');
+EXCEPTION
+    WHEN OTHERS THEN
+        ROLLBACK; 
+        DBMS_OUTPUT.PUT_LINE('Error: ' || SQLCODE || ' - ' || SQLERRM);
+END ActualizarAlimento;
+/
+ 
+set serveroutput on;
+execute ActualizarAlimento('1','Pro pet Adulto','Alimento Para Adultos, nutrición balanceada y altamente digestible 10k.','10','13000');
+ 
+select * from alimentos;
+ 
+--------------------------------------------------------------------------------------
+--Eliminar Alimentos
+CREATE OR REPLACE PROCEDURE EliminarAlimento (
+    p_Alimento_id IN INT
+)
+IS
+BEGIN
+    DELETE FROM alimentos
+    WHERE Alimento_id = p_alimento_id;
+    COMMIT; 
+    DBMS_OUTPUT.PUT_LINE('Alimento eliminado exitosamente.');
+EXCEPTION
+    WHEN OTHERS THEN
+        ROLLBACK; 
+        DBMS_OUTPUT.PUT_LINE('Error: ' || SQLCODE || ' - ' || SQLERRM);
+END EliminarAlimento;
+/
+set serveroutput on;
+execute EliminarAlimento(1);
+select * from alimentos;
+
+
+
+--Crud citas
+
+
+--Crear citas
+CREATE OR REPLACE PROCEDURE CrearCitas (
+    p_Cliente_id IN INT,
+    p_Mascota_id IN INT,
+    p_Fecha IN DATE,
+    p_Motivo IN VARCHAR2
+    
+)
+IS
+BEGIN
+    INSERT INTO citas (cita_id, cliente_id, mascota_id, fecha, motivo)
+    VALUES ((SELECT COALESCE(MAX(cita_id), 0) + 1 FROM citas), p_Cliente_id, p_Mascota_id, p_Fecha, p_Motivo);
+    COMMIT; 
+    DBMS_OUTPUT.PUT_LINE('Nuevo cita agendada exitosamente.');
+EXCEPTION
+    WHEN OTHERS THEN
+        ROLLBACK;
+        DBMS_OUTPUT.PUT_LINE('Error: ' || SQLCODE || ' - ' || SQLERRM);
+END CrearCitas;
+/
+--ejecucion
+set serveroutput on;
+execute CrearCitas('7','6', TO_DATE('2024-03-21', 'YYYY-MM-DD'),'Baño');
+
+select * from citas;
+
+
+
+
+
+-------------------------------------------------------------------------------------------------------------
+--editar citas
+CREATE OR REPLACE PROCEDURE ActualizarCitas (
+    p_Cita_id in INT,
+    p_Cliente_id IN INT,
+    p_Mascota_id IN INT,
+    p_Fecha IN DATE,
+    p_Motivo IN VARCHAR2
+    
+)
+IS
+BEGIN
+    UPDATE citas
+    SET Cita_id = p_cita_id,
+        Cliente_id = p_cliente_id,
+        Mascota_id = p_mascota_id,
+        Fecha = p_fecha,
+        Motivo = p_motivo
+       
+    WHERE Cita_id = p_cita_id;
+    COMMIT; 
+    DBMS_OUTPUT.PUT_LINE('Cita actualizada exitosamente.');
+EXCEPTION
+    WHEN OTHERS THEN
+        ROLLBACK; 
+        DBMS_OUTPUT.PUT_LINE('Error: ' || SQLCODE || ' - ' || SQLERRM);
+END ActualizarCitas;
+/
+ 
+set serveroutput on;
+execute ActualizarCitas('1','1','1', TO_DATE('2024-03-21', 'YYYY-MM-DD'),'Vomito');
+ 
+select * from citas;
+ 
+--------------------------------------------------------------------------------------
+--Eliminar Citas
+CREATE OR REPLACE PROCEDURE EliminarCitas (
+    p_Cita_id IN INT
+)
+IS
+BEGIN
+    DELETE FROM citas
+    WHERE Cita_id = p_Cita_id;
+    COMMIT; 
+    DBMS_OUTPUT.PUT_LINE('Cita eliminada exitosamente.');
+EXCEPTION
+    WHEN OTHERS THEN
+        ROLLBACK; 
+        DBMS_OUTPUT.PUT_LINE('Error: ' || SQLCODE || ' - ' || SQLERRM);
+END EliminarCitas;
+/
+set serveroutput on;
+execute EliminarCitas(1);
+select * from citas;
+
+
+--crud historial
+
+--Crear Historial
+CREATE OR REPLACE PROCEDURE CrearHistorial (
+    p_Mascota_id IN INT,
+    p_Fecha IN DATE,
+    p_Descripcion IN VARCHAR2
+    
+)
+IS
+BEGIN
+    INSERT INTO historial (historial_id, mascota_id, fecha, descripcion)
+    VALUES ((SELECT COALESCE(MAX(historial_id), 0) + 1 FROM historial), p_Mascota_id, p_Fecha, p_descripcion);
+    COMMIT; 
+    DBMS_OUTPUT.PUT_LINE('Nuevo Historial exitosamente.');
+EXCEPTION
+    WHEN OTHERS THEN
+        ROLLBACK;
+        DBMS_OUTPUT.PUT_LINE('Error: ' || SQLCODE || ' - ' || SQLERRM);
+END CrearHistorial;
+/
+--ejecucion
+set serveroutput on;
+execute CrearHistorial('1', TO_DATE('2024-03-21', 'YYYY-MM-DD'),'Se trató por vomito');
+select * from historial;
+----------------------------------------------------------------------------------------------------------------------
+--editar Historial
+CREATE OR REPLACE PROCEDURE ActualizarHistorial (
+    p_Historial_id IN INT,
+    p_Mascota_id IN INT,
+    p_Fecha IN DATE,
+    p_Descripcion IN VARCHAR2
+)
+IS
+BEGIN
+    UPDATE historial
+    SET Historial_id = p_Historial_id,
+        Mascota_id = p_Mascota_id,
+        Fecha = p_fecha,
+        Descripcion = p_Descripcion
+       
+    WHERE Historial_id = p_Historial_id;
+    COMMIT; 
+    DBMS_OUTPUT.PUT_LINE('Historial actualizado exitosamente.');
+EXCEPTION
+    WHEN OTHERS THEN
+        ROLLBACK; 
+        DBMS_OUTPUT.PUT_LINE('Error: ' || SQLCODE || ' - ' || SQLERRM);
+END ActualizarHistorial;
+/
+ 
+set serveroutput on;
+execute ActualizarHistorial('1','1', TO_DATE('2024-03-21', 'YYYY-MM-DD'),'Se trató por vomito y se le reseto');
+ 
+select * from historial;
+--------------------------------------------------------------------------------------------------------------------
+--Eliminar Historial
+CREATE OR REPLACE PROCEDURE EliminarHistorial (
+    p_Historial_id IN INT
+)
+IS
+BEGIN
+    DELETE FROM historial
+    WHERE Historial_id = p_historial_id;
+    COMMIT; 
+    DBMS_OUTPUT.PUT_LINE('Historial eliminado exitosamente.');
+EXCEPTION
+    WHEN OTHERS THEN
+        ROLLBACK; 
+        DBMS_OUTPUT.PUT_LINE('Error: ' || SQLCODE || ' - ' || SQLERRM);
+END EliminarHistorial;
+/
+set serveroutput on;
+execute EliminarHistorial(1);
+select * from historial;
+
+
+--crud juguetes
+--insert
+
+create or replace NONEDITIONABLE PROCEDURE InsertarJuguete(
+    p_Nombre VARCHAR2,
+    p_Descripcion VARCHAR2,
+    p_Stock INT,
+    p_Precio INT
+)
+AS
+BEGIN
+    INSERT INTO Juguetes (juguete_id, nombre, descripcion, precio, stock) 
+    VALUES ((SELECT COALESCE(MAX(juguete_id), 0) + 1 FROM Juguetes), p_Nombre, p_Descripcion, p_Stock, p_Precio);
+END;
+
+
+
+EXECUTE InsertarJuguete('Hueso de nylon', 'Juguete duradero para masticar', 40, 12);
+
+
+
+--read
+create or replace NONEDITIONABLE PROCEDURE ObtenerJuguetes
+AS
+BEGIN
+    FOR Juguete IN (SELECT * FROM Juguetes) LOOP
+        DBMS_OUTPUT.PUT_LINE(Juguete.Juguete_id || ', ' || Juguete.Nombre || ', ' || Juguete.descripcion || ', ' || Juguete.stock || ', ' || Juguete.precio);
+    END LOOP;
+END;
+
+
+execute ObtenerJuguetes;
+--update
+create or replace NONEDITIONABLE PROCEDURE ActualizarJuguete(
+    p_Juguete_id INT,
+    p_Nombre VARCHAR2,
+    p_descripcion VARCHAR2,
+    p_stock INT,
+    p_precio INT
+)
+AS
+BEGIN
+    UPDATE Juguetes 
+    SET Nombre = p_Nombre, descripcion = p_descripcion, stock = p_stock, precio = p_precio 
+    WHERE juguete_id = p_Juguete_id;
+END;
+
+--eliminar
+
+create or replace NONEDITIONABLE PROCEDURE EliminarJuguete(
+    p_Juguete_id INT
+)
+AS
+BEGIN
+    DELETE FROM Juguetes WHERE juguete_id = p_Juguete_id;
+END;
+
+--Crud medicamentos
+--Insert
+
+create or replace NONEDITIONABLE PROCEDURE InsertarMedicamento(
+    p_Nombre VARCHAR2,
+    p_Descripcion VARCHAR2,
+    p_Stock INT,
+    p_Precio INT
+)
+AS
+BEGIN
+    INSERT INTO Medicamentos (medicamento_id ,nombre, descripcion, stock, precio) 
+    VALUES ((SELECT COALESCE(MAX(medicamento_id), 0) + 1 FROM medicamentos), p_Nombre, p_Descripcion, p_Stock, p_Precio);
+END;
+
+EXECUTE InsertarMedicamento('Paracetamol', 'Analgesico y antipiretico', 100, 5);
+
+
+select * from medicamentos;
+
+--read
+create or replace NONEDITIONABLE PROCEDURE ObtenerMedicamentos
+AS
+BEGIN
+    FOR medicamento IN (SELECT * FROM medicamentos) LOOP
+        DBMS_OUTPUT.PUT_LINE(medicamento.Medicamento_id || ', ' || medicamento.Nombre || ', ' || medicamento.descripcion || ', ' || medicamento.stock || ', ' || medicamento.precio );
+    END LOOP;
+END;
+
+set serveroutput on;
+exec obtenermedicamentos;
+
+
+--Update
+create or replace NONEDITIONABLE PROCEDURE ActualizarMedicamento(
+    p_Medicamento_id INT,
+    p_Nombre VARCHAR2,
+    p_Descripcion VARCHAR2,
+    p_Stock INT,
+    p_Precio INT
+)
+AS
+BEGIN
+    UPDATE medicamentos 
+    SET Nombre = p_Nombre, descripcion = p_Descripcion, stock = p_Stock, precio = p_Precio 
+    WHERE medicamento_id = p_Medicamento_id;
+END;
+
+--exec actualizarmedicamento(1,'Ritalina','calmar ansiedad', 10, 3000);
+
+
+--Delete
+create or replace NONEDITIONABLE PROCEDURE EliminarMedicamento(
+    p_medicamento_id INT
+)
+AS
+BEGIN
+    DELETE FROM medicamentos WHERE medicamento_id = p_medicamento_id;
+END;
+
+exec eliminarmedicamento(1);
+
+
+--Crud inventario
+
+
+--VISTAS
+
+--1.Info de los clientes 
+CREATE OR REPLACE VIEW vista_citas AS
+SELECT c.Cita_id, c.Cliente_id, cli.Nombre AS Nombre_cliente, c.Mascota_id, m.Nombre AS Nombre_mascota, c.Fecha, c.Motivo
+FROM Citas c
+JOIN Clientes cli ON c.Cliente_id = cli.Cliente_id
+JOIN Mascotas m ON c.Mascota_id = m.Mascota_id;
+
+
+select * from vista_citas;
+
+
+--2. STOCK DE LOS JUGUETES
+
+CREATE OR REPLACE FORCE NONEDITIONABLE VIEW "VETERINARIAMF"."VISTA_JUGUETES_STOCK" ("JUGUETE_ID", "NOMBRE", "STOCK") AS 
+SELECT Juguete_id, Nombre, Stock
+FROM Juguetes;
+
+
+select * from VISTA_JUGUETES_STOCK;
+
+
+
+
+--3.Info de los clientes 
+CREATE OR REPLACE VIEW vista_clientes AS
+SELECT Cliente_id, Nombre, Apellido, Direccion, Telefono, Correo
+FROM Clientes;
+
+select * from vista_clientes;
+
+--Vista para listar todas las mascotas con sus dueños
+
+CREATE OR REPLACE VIEW "VETERINARIAMF"."VISTA_MASCOTAS_DUEÑOS" AS
+SELECT M.Mascota_id, M.Nombre AS Nombre_Mascota, M.Especie, M.Edad, C.Cliente_id, C.Nombre AS Nombre_Cliente, C.Apellido
+FROM Mascotas M
+JOIN Clientes C ON M.Cliente_id = C.Cliente_id;
+
+
+SELECT * FROM "VETERINARIAMF"."VISTA_MASCOTAS_DUEÑOS";
+
+
+--Vista para listar todos los medicamentos con su stock
+
+CREATE OR REPLACE VIEW "VETERINARIAMF"."VISTA_MEDICAMENTOS_STOCK" AS
+SELECT Medicamento_id, Nombre, Stock
+FROM Medicamentos;
+
+SELECT * FROM "VETERINARIAMF"."VISTA_MEDICAMENTOS_STOCK";
+
+
+--Vista para lista todos los juguetes con su stock
+
+CREATE OR REPLACE VIEW "VETERINARIAMF"."VISTA_JUGUETES_STOCK" AS
+SELECT Juguete_id, Nombre, Stock
+FROM Juguetes;
+
+SELECT * FROM "VETERINARIAMF"."VISTA_JUGUETES_STOCK";
+
+
+--Vista para listar todos los alimentos con su stock
+
+CREATE OR REPLACE VIEW "VETERINARIAMF"."VISTA_ALIMENTOS_STOCK" AS
+SELECT Alimento_id, Nombre, Stock
+FROM Alimentos;
+
+
+SELECT * FROM "VETERINARIAMF"."VISTA_ALIMENTOS_STOCK";
+
+
+--Vista para listar todas las citas con detalles de la mascota y el cliente
+CREATE OR REPLACE VIEW "VETERINARIAMF"."VISTA_CITAS_DETALLE" AS
+SELECT C.Cita_id, C.Fecha, C.Motivo, M.Mascota_id, M.Nombre AS Nombre_Mascota, Cl.Cliente_id, Cl.Nombre AS Nombre_Cliente, Cl.Apellido
+FROM Citas C
+JOIN Mascotas M ON C.Mascota_id = M.Mascota_id
+JOIN Clientes Cl ON M.Cliente_id = Cl.Cliente_id;
+
+SELECT * FROM "VETERINARIAMF"."VISTA_CITAS_DETALLE";
+
+
+--vista para mostrar el historial con su mascota
+
+CREATE OR REPLACE FORCE NONEDITIONABLE VIEW "VETERINARIAMF"."VISTA_HISTORIAL_MASCOTA" AS 
+SELECT H.Historial_id, H.Mascota_id, M.Nombre AS Nombre_Mascota, M.Especie, M.Edad, M.Raza, H.Fecha, H.Descripcion
+FROM Historial H
+JOIN Mascotas M ON H.Mascota_id = M.Mascota_id;
+
+
+select * from VISTA_HISTORIAL_MASCOTA
+
+
+-- Vista de citas y su cliente
+
+CREATE OR REPLACE FORCE NONEDITIONABLE VIEW "VETERINARIAMF"."VISTA_CITAS_CLIENTES" AS 
+SELECT C.Cita_id, C.Fecha, C.Motivo, Cl.Nombre AS Nombre_Cliente, Cl.Apellido AS Apellido_Cliente, M.Nombre AS Nombre_Mascota
+FROM Citas C
+JOIN Clientes Cl ON C.Cliente_id = Cl.Cliente_id
+JOIN Mascotas M ON C.Mascota_id = M.Mascota_id;
+
+select * from VISTA_CITAS_CLIENTES;
+
+-- Clientes con su cantidad de mascotas registradas
+CREATE OR REPLACE FORCE NONEDITIONABLE VIEW "VETERINARIAMF"."VISTA_CLIENTES_MASCOTAS" AS 
+SELECT Cl.Cliente_id, Cl.Nombre, Cl.Apellido, COUNT(M.Mascota_id) AS Cantidad_Mascotas
+FROM Clientes Cl
+LEFT JOIN Mascotas M ON Cl.Cliente_id = M.Cliente_id
+GROUP BY Cl.Cliente_id, Cl.Nombre, Cl.Apellido;\
+
+select * from VISTA_CLIENTES_MASCOTAS;
+
+
+
+
+-- Vista de medicamentos con su precio promedio y stock bajo
+
+
+CREATE OR REPLACE FORCE NONEDITIONABLE VIEW "VETERINARIAMF"."VISTA_MEDICAMENTOS_PRECIO_PROMEDIO_STOCK_BAJO" AS 
+SELECT M.Medicamento_id, M.Nombre, M.Descripcion, M.Precio, M.Stock, AVG(M.Precio) AS Precio_Promedio
+FROM Medicamentos M
+WHERE M.Stock < 10
+GROUP BY M.Medicamento_id, M.Nombre, M.Descripcion, M.Precio, M.Stock;
+
+
+select * from VISTA_MEDICAMENTOS_PRECIO_PROMEDIO_STOCK_BAJO;
+
+--FUNCIONES
+
+--Calcular precio de una venta
+CREATE OR REPLACE FUNCTION Calcular_Precio_Total_Venta(
+    p_medicamento_id INT, 
+    p_juguete_id INT, 
+    p_alimento_id INT, 
+    p_cantidad INT
+) RETURN DECIMAL IS
+    v_precio_total DECIMAL(10, 2);
+BEGIN
+    
+    v_precio_total := 0;
+    
+    
+    SELECT Precio * p_cantidad
+    INTO v_precio_total
+    FROM Medicamentos
+    WHERE Medicamento_id = p_medicamento_id;
+    
+    SELECT Precio * p_cantidad
+    INTO v_precio_total
+    FROM Juguetes
+    WHERE Juguete_id = p_juguete_id;
+    
+    SELECT Precio * p_cantidad
+    INTO v_precio_total
+    FROM Alimentos
+    WHERE Alimento_id = p_alimento_id;
+    
+    RETURN v_precio_total;
+END Calcular_Precio_Total_Venta;
+/
+
+
+--Ejecucion
+DECLARE
+    precio_total DECIMAL(10, 2);
+BEGIN
+    precio_total := Calcular_Precio_Total_Venta(p_medicamento_id => 1, 
+                                                p_juguete_id => 2, 
+                                                p_alimento_id => 3, 
+                                                p_cantidad => 5);
+    DBMS_OUTPUT.PUT_LINE('El precio total de la venta es: ' || precio_total);
+END;
+/
+
+
+
+
+--Obtener promedio de la edad de las mascotas de un cliente
+CREATE OR REPLACE FUNCTION Obtener_Edad_Promedio_Mascotas_Cliente(p_cliente_id INT) RETURN INT IS
+    v_edad_promedio INT;
+BEGIN
+    SELECT AVG(Edad)
+    INTO v_edad_promedio
+    FROM Mascotas
+    WHERE Cliente_id = p_cliente_id;
+    
+    RETURN v_edad_promedio;
+END Obtener_Edad_Promedio_Mascotas_Cliente;
+/
+
+--ejecucion
+DECLARE
+    edad_promedio INT;
+BEGIN
+    edad_promedio := Obtener_Edad_Promedio_Mascotas_Cliente(p_cliente_id => 1); -- Reemplaza '1' con el ID del cliente que deseas consultar.
+    DBMS_OUTPUT.PUT_LINE('La edad promedio de las mascotas del cliente es: ' || edad_promedio);
+END;
+/
+
+
+--funcion para actualizar el stock de un juguete
+
+CREATE OR REPLACE FUNCTION actualizar_stock_juguete(
+    juguete_id IN NUMBER,
+    cantidad IN NUMBER
+) RETURN NUMBER IS
+BEGIN
+    UPDATE JUGUETES
+    SET STOCK = STOCK + cantidad
+    WHERE JUGUETE_ID = juguete_id;
+    
+    RETURN SQL%ROWCOUNT;
+END;
+/
+
+
+--ejecucion
+set serveroutput on;
+DECLARE
+    v_resultado NUMBER;
+BEGIN
+    v_resultado := actualizar_stock_juguete(1, 30);
+    DBMS_OUTPUT.PUT_LINE('Stock actualizado correctamente');
+EXCEPTION
+    WHEN OTHERS THEN
+        DBMS_OUTPUT.PUT_LINE('Error al actualizar el stock');
+END;
+/
+
+select * from juguetes;
+
+
+-- Funcion para buscar juguetes por su precio
+
+CREATE OR REPLACE FUNCTION buscar_juguetes_por_precio(
+    precio_minimo IN NUMBER,
+    precio_maximo IN NUMBER
+) RETURN SYS_REFCURSOR IS
+    juguetes_cursor SYS_REFCURSOR;
+BEGIN
+    OPEN juguetes_cursor FOR
+    SELECT *
+    FROM JUGUETES
+    WHERE PRECIO BETWEEN precio_minimo AND precio_maximo;
+    RETURN juguetes_cursor;
+END;
+/
+
+--ejecucion
+VARIABLE result REFCURSOR;
+BEGIN
+    :result := buscar_juguetes_por_precio(2000, 4000); 
+END;
+/
+PRINT result;
+
+
+--Funcion para buscar clientes por su nombre
+
+CREATE OR REPLACE FUNCTION buscar_clientes_por_nombre(
+    nombre_cliente IN VARCHAR2
+) RETURN SYS_REFCURSOR IS
+    clientes_cursor SYS_REFCURSOR;
+BEGIN
+    OPEN clientes_cursor FOR
+        SELECT *
+        FROM CLIENTES
+        WHERE UPPER(NOMBRE) LIKE '%' || UPPER(nombre_cliente) || '%';
+
+    RETURN clientes_cursor;
+END;
+/
+
+
+--ejecucion
+VARIABLE resultado_cursor REFCURSOR;
+EXECUTE :resultado_cursor := buscar_clientes_por_nombre('dan');
+PRINT resultado_cursor;
+
+--funcion para mostrar el cliente mas reciente
+
+CREATE OR REPLACE FUNCTION obtener_cliente_mas_reciente RETURN VARCHAR2 IS
+    cliente_mas_reciente VARCHAR2(100);
+BEGIN
+    SELECT NOMBRE || ' ' || APELLIDO INTO cliente_mas_reciente
+    FROM CLIENTES
+    WHERE ROWNUM = 1
+    ORDER BY CLIENTE_ID DESC;
+    
+    RETURN cliente_mas_reciente;
+END;
+/
+
+--ejecucion
+SELECT obtener_cliente_mas_reciente() AS cliente_mas_reciente FROM DUAL;
+
+
+--funcion para aumentar en un 10% el precio de los juguetes
+
+CREATE OR REPLACE FUNCTION aumentar_precio_juguetes(
+    aumento_porcentaje IN NUMBER
+) RETURN NUMBER IS
+BEGIN
+    UPDATE JUGUETES
+    SET PRECIO = PRECIO * (1 + (aumento_porcentaje / 100));
+
+    RETURN SQL%ROWCOUNT;
+END;
+/
+
+--ejecucion
+DECLARE
+    cantidad_actualizada NUMBER;
+BEGIN
+    cantidad_actualizada := aumentar_precio_juguetes(10); 
+    DBMS_OUTPUT.PUT_LINE('Se han actualizado ' || cantidad_actualizada || ' juguetes');
+END;
+/
+
+select * from juguetes;
+
+
+
+--Funcion buscar mascotas por nombre
+CREATE OR REPLACE FUNCTION buscar_mascota_por_nombre(nombre_mascota IN VARCHAR)
+RETURN SYS_REFCURSOR
+AS
+    mascotas_cursor SYS_REFCURSOR;
+BEGIN
+    OPEN mascotas_cursor FOR
+    SELECT Mascota_id, Nombre, Especie, Edad, Cliente_id, Raza
+    FROM Mascotas
+    WHERE Nombre LIKE '%' || nombre_mascota || '%'; 
+
+    RETURN mascotas_cursor;
+END;
+/
+
+VAR mascotas_cursor REFCURSOR;
+EXEC :mascotas_cursor := buscar_mascota_por_nombre('Ma');
+PRINT mascotas_cursor;
+
+--Funcion buscar medicamento por nombre
+
+CREATE OR REPLACE FUNCTION buscar_medicamento_por_nombre(nombre_medicamento IN VARCHAR)
+RETURN SYS_REFCURSOR
+AS
+    medicamentos_cursor SYS_REFCURSOR;
+BEGIN
+    OPEN medicamentos_cursor FOR
+    SELECT Medicamento_id, Nombre, Descripcion, Stock, Precio
+    FROM Medicamentos
+    WHERE Nombre LIKE '%' || nombre_medicamento || '%';
+
+    RETURN medicamentos_cursor;
+END;
+/
+
+VAR medicamentos_cursor REFCURSOR;
+EXEC :medicamentos_cursor := buscar_medicamento_por_nombre('Dig');
+PRINT medicamentos_cursor;
+
+
+--Buscra juguete por nombre
+CREATE OR REPLACE FUNCTION buscar_juguete_por_nombre(nombre_juguete IN VARCHAR)
+RETURN SYS_REFCURSOR
+AS
+    juguetes_cursor SYS_REFCURSOR;
+BEGIN
+    OPEN juguetes_cursor FOR
+    SELECT Juguete_id, Nombre, Descripcion, Precio, Stock
+    FROM Juguetes
+    WHERE Nombre LIKE '%' || nombre_juguete || '%'; 
+
+    RETURN juguetes_cursor;
+END;
+/
+
+VAR juguetes_cursor REFCURSOR;
+EXEC :juguetes_cursor := buscar_juguete_por_nombre('Pelo');
+PRINT juguetes_cursor;
+
+
+--Mostrar historial con el nombre de la mascota
+CREATE OR REPLACE FUNCTION mostrar_historial_con_mascota()
+RETURN SYS_REFCURSOR
+AS
+    historial_cursor SYS_REFCURSOR;
+BEGIN
+    OPEN historial_cursor FOR
+    SELECT H.Historial_id, H.Mascota_id, M.Nombre AS Nombre_Mascota, M.Especie, M.Edad, M.Raza, H.Fecha, H.Descripcion
+    FROM Historial H
+    JOIN Mascotas M ON H.Mascota_id = M.Mascota_id;
+
+    RETURN historial_cursor;
+END;
+/
+
+
+--Funcion opara contar los clientes
+
+CREATE OR REPLACE FUNCTION contar_clientes RETURN NUMBER IS
+    total_clientes NUMBER;
+BEGIN
+    SELECT COUNT(*) INTO total_clientes FROM Clientes;
+    RETURN total_clientes;
+END;
+/
+
+set serveroutput on;
+DECLARE
+    total_clientes NUMBER;
+BEGIN
+    total_clientes := contar_clientes();
+    DBMS_OUTPUT.PUT_LINE('Total de clientes: ' || total_clientes);
+END;
+/
+
+
+--Buscar medicamento por descripcion
+
+CREATE OR REPLACE FUNCTION buscar_medicamento_por_descripcion(
+    p_descripcion IN VARCHAR2
+) RETURN SYS_REFCURSOR IS
+    medicamentos_cursor SYS_REFCURSOR;
+BEGIN
+    OPEN medicamentos_cursor FOR
+    SELECT *
+    FROM Medicamentos
+    WHERE Descripcion LIKE '%' || p_descripcion || '%';
+
+    RETURN medicamentos_cursor;
+END;
+/
+
+select * from medicamentos;
+
+SET SERVEROUTPUT ON;
+DECLARE
+    descripcion_medicamento VARCHAR2(200) := 'Dolor'; 
+    medicamentos_cursor SYS_REFCURSOR;
+    medicamento_id Medicamentos.Medicamento_id%TYPE;
+    medicamento_nombre Medicamentos.Nombre%TYPE;
+    medicamento_descripcion Medicamentos.Descripcion%TYPE;
+    medicamento_stock Medicamentos.Stock%TYPE;
+    medicamento_precio Medicamentos.Precio%TYPE;
+BEGIN
+    medicamentos_cursor := buscar_medicamento_por_descripcion(descripcion_medicamento);
+    DBMS_OUTPUT.PUT_LINE('Resultados de la búsqueda:');
+    LOOP
+        FETCH medicamentos_cursor INTO
+            medicamento_id, medicamento_nombre, medicamento_descripcion, medicamento_stock, medicamento_precio;
+        EXIT WHEN medicamentos_cursor%NOTFOUND;
+        DBMS_OUTPUT.PUT_LINE('ID: ' || medicamento_id || ', Nombre: ' || medicamento_nombre || ', Descripción: ' || medicamento_descripcion || ', Stock: ' || medicamento_stock || ', Precio: ' || medicamento_precio);
+    END LOOP;
+    CLOSE medicamentos_cursor;
+END;
+/
+
+
+
+
+
+
+
+
+
+---PAQUETES
+
+1--
+
+
+
+
+
+
+
+
+
+
+--2.Maneja la logica de los productos
+CREATE OR REPLACE PACKAGE productos_package AS
+    PROCEDURE actualizar_stock(p_producto_id IN Inventario.Inventario_id%TYPE, p_cantidad IN NUMBER);
+    PROCEDURE actualizar_precio(p_producto_id IN Inventario.Inventario_id%TYPE, p_nuevo_precio IN NUMBER);
+END productos_package;
+/
+
+CREATE OR REPLACE PACKAGE BODY productos_package AS
+    PROCEDURE actualizar_stock(p_producto_id IN Inventario.Inventario_id%TYPE, p_cantidad IN NUMBER) AS
+    BEGIN
+        UPDATE Inventario
+        SET Stock = Stock + p_cantidad
+        WHERE Inventario_id = p_producto_id;
+    END actualizar_stock;
+
+    PROCEDURE actualizar_precio(p_producto_id IN Inventario.Inventario_id%TYPE, p_nuevo_precio IN NUMBER) AS
+    BEGIN
+        UPDATE Inventario
+        SET Precio_producto = p_nuevo_precio
+        WHERE Inventario_id = p_producto_id;
+    END actualizar_precio;
+END productos_package;
+/
+
+
+--3.Maneja la logica de los cliente 
+CREATE OR REPLACE PACKAGE clientes_package AS
+    PROCEDURE registrar_cliente(p_cliente_id IN INTEGER, p_nombre IN Clientes.Nombre%TYPE, p_apellido IN Clientes.Apellido%TYPE, p_direccion IN Clientes.Direccion%TYPE, p_telefono IN Clientes.Telefono%TYPE, p_correo IN Clientes.Correo%TYPE);
+END clientes_package;
+/
+
+CREATE OR REPLACE PACKAGE BODY clientes_package AS
+    PROCEDURE registrar_cliente(p_cliente_id IN INTEGER, p_nombre IN Clientes.Nombre%TYPE, p_apellido IN Clientes.Apellido%TYPE, p_direccion IN Clientes.Direccion%TYPE, p_telefono IN Clientes.Telefono%TYPE, p_correo IN Clientes.Correo%TYPE) AS
+    BEGIN
+        INSERT INTO Clientes (cliente_id, Nombre, Apellido, Direccion, Telefono, Correo)
+        VALUES (p_cliente_id, p_nombre, p_apellido, p_direccion, p_telefono, p_correo);
+    END registrar_cliente;
+END clientes_package;
+/
+
+
+--ejecucion
+BEGIN
+    clientes_package.registrar_cliente(p_cliente_id => 5, p_nombre => 'Juan', p_apellido => 'Perez', p_direccion => 'Calle Principal 123', p_telefono => '123456789', p_correo => 'juan@example.com');
+END;
+/
+
+select * from clientes;
+
+
+
+--3
+
+
+
+
+
+
+
+
+
+
+
+--Actualizar Stock de Productos
+CREATE OR REPLACE PACKAGE Paquete_Actualizar_Stock AS
+    PROCEDURE Actualizar_Stock_Medicamento(id IN INT, cantidad IN INT);
+    PROCEDURE Actualizar_Stock_Juguete(id IN INT, cantidad IN INT);
+    PROCEDURE Actualizar_Stock_Alimento(id IN INT, cantidad IN INT);
+END Paquete_Actualizar_Stock;
+/
+
+CREATE OR REPLACE PACKAGE BODY Paquete_Actualizar_Stock AS
+    PROCEDURE Actualizar_Stock_Medicamento(id IN INT, cantidad IN INT) AS
+    BEGIN
+        UPDATE Medicamentos SET Stock = Stock + cantidad WHERE Medicamento_id = id;
+    END Actualizar_Stock_Medicamento;
+
+    PROCEDURE Actualizar_Stock_Juguete(id IN INT, cantidad IN INT) AS
+    BEGIN
+        UPDATE Juguetes SET Stock = Stock + cantidad WHERE Juguete_id = id;
+    END Actualizar_Stock_Juguete;
+
+    PROCEDURE Actualizar_Stock_Alimento(id IN INT, cantidad IN INT) AS
+    BEGIN
+        UPDATE Alimentos SET Stock = Stock + cantidad WHERE Alimento_id = id;
+    END Actualizar_Stock_Alimento;
+END Paquete_Actualizar_Stock;
+/
+
+BEGIN
+    Paquete_Actualizar_Stock.Actualizar_Stock_Juguete(id => 1, cantidad => 10); 
+END;
+/
+
+select * from juguetes;
+
+
+
+--Paquete para registrar un nuevo cliente
+
+CREATE OR REPLACE NONEDITIONABLE PACKAGE "VETERINARIAMF"."PAQUETE_REGISTRAR_CLIENTE" AS
+    PROCEDURE registrar_cliente(p_cliente_id in int, p_nombre IN VARCHAR2, p_apellido IN VARCHAR2, p_direccion IN VARCHAR2, p_telefono IN VARCHAR2, p_correo IN VARCHAR2);
+END PAQUETE_REGISTRAR_CLIENTE;
+/
+
+CREATE OR REPLACE NONEDITIONABLE PACKAGE BODY "VETERINARIAMF"."PAQUETE_REGISTRAR_CLIENTE" AS
+    PROCEDURE registrar_cliente(p_cliente_id in int, p_nombre IN VARCHAR2, p_apellido IN VARCHAR2, p_direccion IN VARCHAR2, p_telefono IN VARCHAR2, p_correo IN VARCHAR2) AS
+    BEGIN
+        INSERT INTO Clientes (cliente_id, Nombre, Apellido, Direccion, Telefono, Correo)
+        VALUES (p_cliente_id, p_nombre, p_apellido, p_direccion, p_telefono, p_correo);
+    END registrar_cliente;
+END PAQUETE_REGISTRAR_CLIENTE;
+/
+
+EXECUTE "VETERINARIAMF"."PAQUETE_REGISTRAR_CLIENTE".registrar_cliente(7, 'Daniel', 'Lopez', 'San Jose', '23445667', 'dlopez@gmail.com');
+
+SELECT * FROM clientes order by cliente_id;
+
+--Paquete para buscar una mascota por su ID
+
+CREATE OR REPLACE PACKAGE "VETERINARIAMF"."PAQUETE_BUSCAR_MASCOTA_POR_ID" AS
+    FUNCTION buscar_mascota_por_id(p_mascota_id IN NUMBER) RETURN Mascotas%ROWTYPE;
+END PAQUETE_BUSCAR_MASCOTA_POR_ID;
+/
+CREATE OR REPLACE PACKAGE BODY "VETERINARIAMF"."PAQUETE_BUSCAR_MASCOTA_POR_ID" AS
+    FUNCTION buscar_mascota_por_id(p_mascota_id IN NUMBER) RETURN Mascotas%ROWTYPE IS
+        v_mascota Mascotas%ROWTYPE;
+    BEGIN
+        SELECT *
+        INTO v_mascota
+        FROM Mascotas
+        WHERE Mascota_id = p_mascota_id;
+
+        RETURN v_mascota;
+    END buscar_mascota_por_id;
+END PAQUETE_BUSCAR_MASCOTA_POR_ID;
+/
+
+set serveroutput on;
+DECLARE
+    v_mascota Mascotas%ROWTYPE;
+BEGIN
+    v_mascota := "VETERINARIAMF"."PAQUETE_BUSCAR_MASCOTA_POR_ID".buscar_mascota_por_id(1); 
+    
+   
+    DBMS_OUTPUT.PUT_LINE('ID: ' || v_mascota.Mascota_id);
+    DBMS_OUTPUT.PUT_LINE('Nombre: ' || v_mascota.Nombre);
+    DBMS_OUTPUT.PUT_LINE('Especie: ' || v_mascota.Especie);
+    DBMS_OUTPUT.PUT_LINE('Edad: ' || v_mascota.Edad);
+    DBMS_OUTPUT.PUT_LINE('Cliente ID: ' || v_mascota.Cliente_id);
+    DBMS_OUTPUT.PUT_LINE('Raza: ' || v_mascota.Raza);
+END;
+
+--Paquete para recordatorio de alertas y vacunas para el cliente
+
+CREATE OR REPLACE PACKAGE recordatorios_alertas_package AS
+    PROCEDURE enviar_recordatorio_cita(p_cliente_id IN NUMBER, p_fecha_cita IN DATE);
+    PROCEDURE enviar_alerta_vacuna(p_mascota_id IN NUMBER, p_fecha_vacuna IN DATE);
+END recordatorios_alertas_package;
+/
+
+CREATE OR REPLACE PACKAGE BODY recordatorios_alertas_package AS
+    PROCEDURE enviar_recordatorio_cita(p_cliente_id IN NUMBER, p_fecha_cita IN DATE) AS
+    BEGIN
+        
+        DBMS_OUTPUT.PUT_LINE('Enviar recordatorio de cita al cliente ' || p_cliente_id || ' para la fecha ' || TO_CHAR(p_fecha_cita, 'DD-MON-YYYY'));
+       
+    END enviar_recordatorio_cita;
+    
+    PROCEDURE enviar_alerta_vacuna(p_mascota_id IN NUMBER, p_fecha_vacuna IN DATE) AS
+    BEGIN
+        
+        DBMS_OUTPUT.PUT_LINE('Enviar alerta de vacuna pendiente para la mascota ' || p_mascota_id || ' para la fecha ' || TO_CHAR(p_fecha_vacuna, 'DD-MON-YYYY'));
+        
+    END enviar_alerta_vacuna;
+END recordatorios_alertas_package;
+/
+
+BEGIN
+    recordatorios_alertas_package.enviar_recordatorio_cita(1, SYSDATE); 
+    recordatorios_alertas_package.enviar_alerta_vacuna(2, TRUNC(SYSDATE) + 7); 
+END;
+
+
+
+
+
+
+
+--------------------------------------------------------------------------------------
+--Paquete para añadir medicamentos
+
+CREATE OR REPLACE PACKAGE crear_medicamentos_package AS
+    PROCEDURE crear_medicamento(p_medicamento_ID in int, p_nombre IN VARCHAR2, p_descripcion IN VARCHAR2, p_stock IN NUMBER, p_precio IN NUMBER);
+END crear_medicamentos_package;
+/
+
+CREATE OR REPLACE PACKAGE BODY crear_medicamentos_package AS
+    PROCEDURE crear_medicamento(p_medicamento_ID in int ,p_nombre IN VARCHAR2, p_descripcion IN VARCHAR2, p_stock IN NUMBER, p_precio IN NUMBER) AS
+    BEGIN
+        INSERT INTO medicamentos (medicamento_id, nombre, descripcion, stock, precio) VALUES (p_medicamento_ID, p_nombre, p_descripcion, p_stock, p_precio);
+        COMMIT;
+    END crear_medicamento;
+END crear_medicamentos_package;
+/
+
+BEGIN
+    crear_medicamentos_package.crear_medicamento(3, 'Nombre del Medicamento', 'Descripción', 100, 10990);
+END;
+
+
+
+------------------------------------------------------------------------------------
+--Paquete para eliminar medicamentos
+
+CREATE OR REPLACE PACKAGE eliminar_medicamentos_package AS
+    PROCEDURE eliminar_medicamento(p_medicamento_id IN NUMBER);
+END eliminar_medicamentos_package;
+/
+
+CREATE OR REPLACE PACKAGE BODY eliminar_medicamentos_package AS
+    PROCEDURE eliminar_medicamento(p_medicamento_id IN NUMBER) AS
+    BEGIN
+ 
+        DELETE FROM medicamentos WHERE medicamento_id = p_medicamento_id;
+        COMMIT; 
+    END eliminar_medicamento;
+END eliminar_medicamentos_package;
+/
+
+BEGIN
+    eliminar_medicamentos_package.eliminar_medicamento(3); 
+END;
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+-- Maneja la lógica de las mascotas
+CREATE OR REPLACE PACKAGE mascotas_package AS
+    PROCEDURE registrar_mascota(p_mascota_id IN INT, p_nombre IN VARCHAR2, p_especie IN VARCHAR2, p_edad IN INT, p_cliente_id IN INT, p_raza IN VARCHAR2);
+    PROCEDURE eliminar_mascota(p_mascota_id IN INT);
+    PROCEDURE actualizar_mascota(p_mascota_id IN INT, p_nombre IN VARCHAR2, p_especie IN VARCHAR2, p_edad IN INT, p_cliente_id IN INT, p_raza IN VARCHAR2);
+END mascotas_package;
+/
+
+CREATE OR REPLACE PACKAGE BODY mascotas_package AS
+    PROCEDURE registrar_mascota(p_mascota_id IN INT, p_nombre IN VARCHAR2, p_especie IN VARCHAR2, p_edad IN INT, p_cliente_id IN INT, p_raza IN VARCHAR2) AS
+    BEGIN
+        INSERT INTO Mascotas (Mascota_id, Nombre, Especie, Edad, Cliente_id, Raza)
+        VALUES (p_mascota_id, p_nombre, p_especie, p_edad, p_cliente_id, p_raza);
+        COMMIT;
+    END registrar_mascota;
+
+    PROCEDURE eliminar_mascota(p_mascota_id IN INT) AS
+    BEGIN
+        DELETE FROM Mascotas WHERE Mascota_id = p_mascota_id;
+        COMMIT;
+    END eliminar_mascota;
+
+    PROCEDURE actualizar_mascota(p_mascota_id IN INT, p_nombre IN VARCHAR2, p_especie IN VARCHAR2, p_edad IN INT, p_cliente_id IN INT, p_raza IN VARCHAR2) AS
+    BEGIN
+        UPDATE Mascotas
+        SET Nombre = p_nombre,
+            Especie = p_especie,
+            Edad = p_edad,
+            Cliente_id = p_cliente_id,
+            Raza = p_raza
+        WHERE Mascota_id = p_mascota_id;
+        COMMIT;
+    END actualizar_mascota;
+END mascotas_package;
+/
+
+
+
+--Maneja la logica de medicamentos
+
+CREATE OR REPLACE PACKAGE medicamentos_package AS
+    PROCEDURE agregar_medicamento(p_medicamento_id IN Medicamentos.Medicamento_id%TYPE, p_nombre IN Medicamentos.Nombre%TYPE, p_descripcion IN Medicamentos.Descripcion%TYPE, p_stock IN Medicamentos.Stock%TYPE, p_precio IN Medicamentos.Precio%TYPE);
+    PROCEDURE eliminar_medicamento(p_medicamento_id IN Medicamentos.Medicamento_id%TYPE);
+    PROCEDURE actualizar_medicamento(p_medicamento_id IN Medicamentos.Medicamento_id%TYPE, p_nombre IN Medicamentos.Nombre%TYPE, p_descripcion IN Medicamentos.Descripcion%TYPE, p_stock IN Medicamentos.Stock%TYPE, p_precio IN Medicamentos.Precio%TYPE);
+END medicamentos_package;
+/
+
+CREATE OR REPLACE PACKAGE BODY medicamentos_package AS
+    PROCEDURE agregar_medicamento(p_medicamento_id IN Medicamentos.Medicamento_id%TYPE, p_nombre IN Medicamentos.Nombre%TYPE, p_descripcion IN Medicamentos.Descripcion%TYPE, p_stock IN Medicamentos.Stock%TYPE, p_precio IN Medicamentos.Precio%TYPE) AS
+    BEGIN
+        INSERT INTO Medicamentos (Medicamento_id, Nombre, Descripcion, Stock, Precio)
+        VALUES (p_medicamento_id, p_nombre, p_descripcion, p_stock, p_precio);
+        COMMIT;
+    END agregar_medicamento;
+
+    PROCEDURE eliminar_medicamento(p_medicamento_id IN Medicamentos.Medicamento_id%TYPE) AS
+    BEGIN
+        DELETE FROM Medicamentos WHERE Medicamento_id = p_medicamento_id;
+        COMMIT;
+    END eliminar_medicamento;
+
+    PROCEDURE actualizar_medicamento(p_medicamento_id IN Medicamentos.Medicamento_id%TYPE, p_nombre IN Medicamentos.Nombre%TYPE, p_descripcion IN Medicamentos.Descripcion%TYPE, p_stock IN Medicamentos.Stock%TYPE, p_precio IN Medicamentos.Precio%TYPE) AS
+    BEGIN
+        UPDATE Medicamentos
+        SET Nombre = p_nombre,
+            Descripcion = p_descripcion,
+            Stock = p_stock,
+            Precio = p_precio
+        WHERE Medicamento_id = p_medicamento_id;
+        COMMIT;
+    END actualizar_medicamento;
+END medicamentos_package;
+/
+
+
+
+BEGIN
+    medicamentos_package.eliminar_medicamento(
+        p_medicamento_id => 2
+    );
+END;
+/
+
+
+
+
+
+--Maneja la logica de juguetes
+
+CREATE OR REPLACE PACKAGE juguetes_package AS
+    PROCEDURE agregar_juguete(p_juguete_id IN Juguetes.Juguete_id%TYPE, p_nombre IN Juguetes.Nombre%TYPE, p_descripcion IN Juguetes.Descripcion%TYPE, p_precio IN Juguetes.Precio%TYPE, p_stock IN Juguetes.Stock%TYPE);
+    PROCEDURE eliminar_juguete(p_juguete_id IN Juguetes.Juguete_id%TYPE);
+    PROCEDURE actualizar_juguete(p_juguete_id IN Juguetes.Juguete_id%TYPE, p_nombre IN Juguetes.Nombre%TYPE, p_descripcion IN Juguetes.Descripcion%TYPE, p_precio IN Juguetes.Precio%TYPE, p_stock IN Juguetes.Stock%TYPE);
+END juguetes_package;
+/
+
+CREATE OR REPLACE PACKAGE BODY juguetes_package AS
+    PROCEDURE agregar_juguete(p_juguete_id IN Juguetes.Juguete_id%TYPE, p_nombre IN Juguetes.Nombre%TYPE, p_descripcion IN Juguetes.Descripcion%TYPE, p_precio IN Juguetes.Precio%TYPE, p_stock IN Juguetes.Stock%TYPE) AS
+    BEGIN
+        INSERT INTO Juguetes (Juguete_id, Nombre, Descripcion, Precio, Stock)
+        VALUES (p_juguete_id, p_nombre, p_descripcion, p_precio, p_stock);
+        COMMIT;
+    END agregar_juguete;
+
+    PROCEDURE eliminar_juguete(p_juguete_id IN Juguetes.Juguete_id%TYPE) AS
+    BEGIN
+        DELETE FROM Juguetes WHERE Juguete_id = p_juguete_id;
+        COMMIT;
+    END eliminar_juguete;
+
+    PROCEDURE actualizar_juguete(p_juguete_id IN Juguetes.Juguete_id%TYPE, p_nombre IN Juguetes.Nombre%TYPE, p_descripcion IN Juguetes.Descripcion%TYPE, p_precio IN Juguetes.Precio%TYPE, p_stock IN Juguetes.Stock%TYPE) AS
+    BEGIN
+        UPDATE Juguetes
+        SET Nombre = p_nombre,
+            Descripcion = p_descripcion,
+            Precio = p_precio,
+            Stock = p_stock
+        WHERE Juguete_id = p_juguete_id;
+        COMMIT;
+    END actualizar_juguete;
+END juguetes_package;
+/
+
+BEGIN
+    juguetes_package.agregar_juguete(
+        p_juguete_id => 3,
+        p_nombre => 'Hueso de goma',
+        p_descripcion => 'Juguete para perro',
+        p_precio => 2000,
+        p_stock => 25
+    );
+END;
+/
+
+--Maneja logica de alimentos
+
+CREATE OR REPLACE PACKAGE alimentos_package AS
+    PROCEDURE agregar_alimento(p_alimento_id IN Alimentos.Alimento_id%TYPE, p_nombre IN Alimentos.Nombre%TYPE, p_descripcion IN Alimentos.Descripcion%TYPE, p_stock IN Alimentos.Stock%TYPE, p_precio IN Alimentos.Precio%TYPE);
+    PROCEDURE eliminar_alimento(p_alimento_id IN Alimentos.Alimento_id%TYPE);
+    PROCEDURE actualizar_alimento(p_alimento_id IN Alimentos.Alimento_id%TYPE, p_nombre IN Alimentos.Nombre%TYPE, p_descripcion IN Alimentos.Descripcion%TYPE, p_stock IN Alimentos.Stock%TYPE, p_precio IN Alimentos.Precio%TYPE);
+END alimentos_package;
+/
+
+CREATE OR REPLACE PACKAGE BODY alimentos_package AS
+    PROCEDURE agregar_alimento(p_alimento_id IN Alimentos.Alimento_id%TYPE, p_nombre IN Alimentos.Nombre%TYPE, p_descripcion IN Alimentos.Descripcion%TYPE, p_stock IN Alimentos.Stock%TYPE, p_precio IN Alimentos.Precio%TYPE) AS
+    BEGIN
+        INSERT INTO Alimentos (Alimento_id, Nombre, Descripcion, Stock, Precio)
+        VALUES (p_alimento_id, p_nombre, p_descripcion, p_stock, p_precio);
+        COMMIT;
+    END agregar_alimento;
+
+    PROCEDURE eliminar_alimento(p_alimento_id IN Alimentos.Alimento_id%TYPE) AS
+    BEGIN
+        DELETE FROM Alimentos WHERE Alimento_id = p_alimento_id;
+        COMMIT;
+    END eliminar_alimento;
+
+    PROCEDURE actualizar_alimento(p_alimento_id IN Alimentos.Alimento_id%TYPE, p_nombre IN Alimentos.Nombre%TYPE, p_descripcion IN Alimentos.Descripcion%TYPE, p_stock IN Alimentos.Stock%TYPE, p_precio IN Alimentos.Precio%TYPE) AS
+    BEGIN
+        UPDATE Alimentos
+        SET Nombre = p_nombre,
+            Descripcion = p_descripcion,
+            Stock = p_stock,
+            Precio = p_precio
+        WHERE Alimento_id = p_alimento_id;
+        COMMIT;
+    END actualizar_alimento;
+END alimentos_package;
+/
+
+select * from alimentos;
+
+BEGIN
+    alimentos_package.eliminar_alimento(
+        p_alimento_id => 2
+    );
+END;
+/
+
+--Maneja la logica del historial
+
+CREATE OR REPLACE PACKAGE historial_package AS
+    PROCEDURE agregar_evento(p_historial_id IN Historial.Historial_id%TYPE, p_mascota_id IN Historial.Mascota_id%TYPE, p_fecha IN Historial.Fecha%TYPE, p_descripcion IN Historial.Descripcion%TYPE);
+    PROCEDURE eliminar_evento(p_historial_id IN Historial.Historial_id%TYPE);
+END historial_package;
+/
+
+CREATE OR REPLACE PACKAGE BODY historial_package AS
+    PROCEDURE agregar_evento(p_historial_id IN Historial.Historial_id%TYPE, p_mascota_id IN Historial.Mascota_id%TYPE, p_fecha IN Historial.Fecha%TYPE, p_descripcion IN Historial.Descripcion%TYPE) AS
+    BEGIN
+        INSERT INTO Historial (Historial_id, Mascota_id, Fecha, Descripcion)
+        VALUES (p_historial_id, p_mascota_id, p_fecha, p_descripcion);
+        COMMIT;
+    END agregar_evento;
+
+    PROCEDURE eliminar_evento(p_historial_id IN Historial.Historial_id%TYPE) AS
+    BEGIN
+        DELETE FROM Historial WHERE Historial_id = p_historial_id;
+        COMMIT;
+    END eliminar_evento;
+END historial_package;
+/
+
+--ejecucion
+
+BEGIN
+    historial_package.agregar_evento(
+        p_historial_id => 5,
+        p_mascota_id => 2,
+        p_fecha => TO_DATE('05/05/2023', 'DD/MM/YYYY'),
+        p_descripcion => 'Compra medicinas'
+    );
+END;
+/
+
+
+select * from historial;
+
+
+--Maneja la logica del inventario
+
+CREATE OR REPLACE PACKAGE inventario_package AS
+    PROCEDURE agregar_producto(p_inventario_id IN Inventario.Inventario_id%TYPE, p_nombre IN Inventario.Nombre_producto%TYPE, p_precio IN Inventario.Precio_producto%TYPE, p_medicamento_id IN Inventario.Medicamento_id%TYPE DEFAULT NULL, p_juguete_id IN Inventario.Juguete_id%TYPE DEFAULT NULL, p_alimento_id IN Inventario.Alimento_id%TYPE DEFAULT NULL);
+    PROCEDURE eliminar_producto(p_inventario_id IN Inventario.Inventario_id%TYPE);
+END inventario_package;
+/
+
+CREATE OR REPLACE PACKAGE BODY inventario_package AS
+    PROCEDURE agregar_producto(p_inventario_id IN Inventario.Inventario_id%TYPE, p_nombre IN Inventario.Nombre_producto%TYPE, p_precio IN Inventario.Precio_producto%TYPE, p_medicamento_id IN Inventario.Medicamento_id%TYPE DEFAULT NULL, p_juguete_id IN Inventario.Juguete_id%TYPE DEFAULT NULL, p_alimento_id IN Inventario.Alimento_id%TYPE DEFAULT NULL) AS
+    BEGIN
+        INSERT INTO Inventario (Inventario_id, Nombre_producto, Precio_producto, Medicamento_id, Juguete_id, Alimento_id)
+        VALUES (p_inventario_id, p_nombre, p_precio, p_medicamento_id, p_juguete_id, p_alimento_id);
+        COMMIT;
+    END agregar_producto;
+
+    PROCEDURE eliminar_producto(p_inventario_id IN Inventario.Inventario_id%TYPE) AS
+    BEGIN
+        DELETE FROM Inventario WHERE Inventario_id = p_inventario_id;
+        COMMIT;
+    END eliminar_producto;
+END inventario_package;
+/
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+---TRIGGERS
+
+--1. Trigger cuando se actualice una mascota
+
+CREATE TABLE Auditoria_Mascotas (
+    Auditoria_id INT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
+    Mascota_id INT,
+    Nombre_anterior VARCHAR(100),
+    Nombre_nuevo VARCHAR(100),
+    Especie_anterior VARCHAR(100),
+    Especie_nuevo VARCHAR(100),
+    Edad_anterior INT,
+    Edad_nuevo INT,
+    Cliente_id_anterior INT,
+    Cliente_id_nuevo INT,
+    Raza_anterior VARCHAR(50),
+    Raza_nuevo VARCHAR(50),
+    Fecha_modificacion TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+
+CREATE OR REPLACE TRIGGER trigger_auditoria_mascotas
+BEFORE UPDATE ON Mascotas
+FOR EACH ROW
+BEGIN
+    INSERT INTO Auditoria_Mascotas (
+        Mascota_id,
+        Nombre_anterior,
+        Nombre_nuevo,
+        Especie_anterior,
+        Especie_nuevo,
+        Edad_anterior,
+        Edad_nuevo,
+        Cliente_id_anterior,
+        Cliente_id_nuevo,
+        Raza_anterior,
+        Raza_nuevo
+    ) VALUES (
+        :OLD.Mascota_id,
+        :OLD.Nombre,
+        :NEW.Nombre,
+        :OLD.Especie,
+        :NEW.Especie,
+        :OLD.Edad,
+        :NEW.Edad,
+        :OLD.Cliente_id,
+        :NEW.Cliente_id,
+        :OLD.Raza,
+        :NEW.Raza
+    );
+END;
+/
+
+UPDATE Mascotas
+SET Nombre = 'Chispi', 
+    Especie = 'Perro', 
+    Edad = 5, 
+    Cliente_id = 7,
+    Raza = 'Chihuahua' 
+WHERE Mascota_id = 1; 
+
+select * from Auditoria_Mascotas;
+
+--2.Registra el historial de citas  de una mascota 
+CREATE OR REPLACE TRIGGER registrar_historial_citas
+AFTER INSERT ON Citas
+FOR EACH ROW
+BEGIN
+    INSERT INTO Historial (Mascota_id, Fecha, Descripcion)
+    VALUES (:NEW.Mascota_id, :NEW.Fecha, :NEW.Motivo);
+END;
+/
+
+--*******************************************************************************************************************************************************************
+
+--3.Actualiza el precio promedio de los productos
+CREATE TABLE Auditoria_Citas (
+    Auditoria_id INT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
+    Cita_id INT,
+    Mascota_id INT,
+    Fecha_anterior DATE,
+    Fecha_nueva DATE,
+    Motivo_anterior VARCHAR(200),
+    Motivo_nuevo VARCHAR(200),
+    Usuario_modificacion VARCHAR(100),
+    Fecha_modificacion TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+--Trigger cuando se hace un update en citas
+CREATE OR REPLACE TRIGGER trigger_actualizar_auditoria_citas
+AFTER UPDATE ON Citas
+FOR EACH ROW
+BEGIN
+    INSERT INTO Auditoria_Citas (
+        Cita_id,
+        Mascota_id,
+        Fecha_anterior,
+        Fecha_nueva,
+        Motivo_anterior,
+        Motivo_nuevo,
+        Usuario_modificacion
+    ) VALUES (
+        :OLD.Cita_id,
+        :OLD.Mascota_id,
+        :OLD.Fecha,
+        :NEW.Fecha,
+        :OLD.Motivo,
+        :NEW.Motivo,
+        USER
+    );
+END;
+/
+
+UPDATE Citas
+SET
+    Fecha = TO_DATE('2022-05-01', 'YYYY-MM-DD'), 
+    Motivo = 'Retraso'
+WHERE
+    Cita_id = 2;
+
+select * from Auditoria_Citas;
+
+
+--Trigger cuando se hace un update en mascotas
+
+CREATE OR REPLACE TRIGGER trigger_auditoria_mascotas
+BEFORE UPDATE ON Mascotas
+FOR EACH ROW
+BEGIN
+    INSERT INTO Auditoria_Mascotas (
+        Mascota_id,
+        Nombre_anterior,
+        Nombre_nuevo,
+        Especie_anterior,
+        Especie_nuevo,
+        Edad_anterior,
+        Edad_nuevo,
+        Cliente_id_anterior,
+        Cliente_id_nuevo,
+        Raza_anterior,
+        Raza_nuevo
+    ) VALUES (
+        :OLD.Mascota_id,
+        :OLD.Nombre,
+        :NEW.Nombre,
+        :OLD.Especie,
+        :NEW.Especie,
+        :OLD.Edad,
+        :NEW.Edad,
+        :OLD.Cliente_id,
+        :NEW.Cliente_id,
+        :OLD.Raza,
+        :NEW.Raza
+    );
+END;
+/
+
+--Trigger cuando se cancele una cita
+
+CREATE TABLE auditoria_eliminacion_citas (
+    cita_id NUMBER,
+    cliente_id NUMBER,
+    mascota_id NUMBER,
+    fecha DATE,
+    motivo VARCHAR2(200),
+    fecha_eliminacion DATE
+);
+
+CREATE OR REPLACE TRIGGER eliminar_cita_trigger
+BEFORE DELETE ON CITAS
+FOR EACH ROW
+BEGIN
+    
+    INSERT INTO auditoria_eliminacion_citas (cita_id, cliente_id, mascota_id, fecha, motivo, fecha_eliminacion)
+    VALUES (:OLD.cita_id, :OLD.cliente_id, :OLD.mascota_id, :OLD.fecha, :OLD.motivo, SYSDATE);
+    
+    
+    DBMS_OUTPUT.PUT_LINE('Se ha eliminado la cita con ID: ' || :OLD.cita_id);
+END;
+/
+
+DELETE FROM CITAS
+WHERE cita_id = 2; 
+
+
+select * from auditoria_eliminacion_citas;
+
+
+
+--Trigger para actualizar el estado de una mascota
+ALTER TABLE mascotas
+ADD estado VARCHAR2(200);
+
+CREATE OR REPLACE TRIGGER trg_actualizar_estado_mascota
+AFTER INSERT ON citas
+FOR EACH ROW
+BEGIN
+  UPDATE mascotas
+  SET estado = 'En consulta'
+  WHERE mascota_id = :NEW.mascota_id;
+END;
+/
+
+--Cursor que reporta si el stock esta bajo en juguetes
+DECLARE
+    CURSOR cursor_juguetes_bajo_stock IS
+    SELECT Juguete_id, Nombre, Descripcion, Precio, Stock
+    FROM Juguetes
+    WHERE stock < 5;
+    v_juguete_id Juguetes.Juguete_id%TYPE;
+    v_nombre Juguetes.Nombre%TYPE;
+    v_descripcion Juguetes.Descripcion%TYPE;
+    v_precio Juguetes.Precio%TYPE;
+    v_stock Juguetes.Stock%TYPE;
+BEGIN
+    OPEN cursor_juguetes_bajo_stock;
+    LOOP
+        FETCH cursor_juguetes_bajo_stock INTO v_juguete_id, v_nombre, v_descripcion, v_precio, v_stock;
+        EXIT WHEN cursor_juguetes_bajo_stock%NOTFOUND;
+        DBMS_OUTPUT.PUT_LINE('Juguete ID: ' || v_juguete_id || 
+                             ', Nombre: ' || v_nombre || 
+                             ', Descripción: ' || v_descripcion || 
+                             ', Precio: ' || v_precio ||
+                             ', Stock: ' || v_stock);
+    END LOOP;
+    CLOSE cursor_juguetes_bajo_stock;
+END;
+
+/
+
+---CURSORES
+
+--Recorrer las citas pendientes
+
+SET SERVEROUTPUT on;
+
+DECLARE
+    v_cita_id Citas.Cita_id%TYPE;
+    v_cliente_id Citas.Cliente_id%TYPE;
+    v_mascota_id Citas.Mascota_id%TYPE;
+    v_fecha Citas.Fecha%TYPE;
+    v_motivo Citas.Motivo%TYPE;
+BEGIN
+    FOR cita_rec IN (SELECT * FROM Citas WHERE Fecha > CURRENT_DATE) LOOP
+        v_cita_id := cita_rec.Cita_id;
+        v_cliente_id := cita_rec.Cliente_id;
+        v_mascota_id := cita_rec.Mascota_id;
+        v_fecha := cita_rec.Fecha;
+        v_motivo := cita_rec.Motivo;
+        
+        -- Realizar alguna operación con los datos de la cita
+        DBMS_OUTPUT.PUT_LINE('Cita ID: ' || v_cita_id || ', Cliente ID: ' || v_cliente_id || ', Mascota ID: ' || v_mascota_id || ', Fecha: ' || v_fecha || ', Motivo: ' || v_motivo);
+    END LOOP;
+END;
+/
+
+--Calcular obtener mascotas con edades menores a un valor especifico
+
+SET SERVEROUTPUT on;
+
+DECLARE
+    v_mascota_id Mascotas.Mascota_id%TYPE;
+    v_nombre Mascotas.Nombre%TYPE;
+    v_edad Mascotas.Edad%TYPE;
+BEGIN
+    FOR mascota_rec IN (SELECT * FROM Mascotas WHERE Edad < 5) LOOP
+        v_mascota_id := mascota_rec.Mascota_id;
+        v_nombre := mascota_rec.Nombre;
+        v_edad := mascota_rec.Edad;
+        
+        -- Realizar alguna operación con los datos de la mascota
+        DBMS_OUTPUT.PUT_LINE('Mascota ID: ' || v_mascota_id || ', Nombre: ' || v_nombre || ', Edad: ' || v_edad);
+    END LOOP;
+END;
+/
+
+--Cursor que reporta si el stock esta bajo en juguetes
+DECLARE
+    CURSOR cursor_juguetes_bajo_stock IS
+    SELECT Juguete_id, Nombre, Descripcion, Precio, Stock
+    FROM Juguetes
+    WHERE stock < 5;
+    v_juguete_id Juguetes.Juguete_id%TYPE;
+    v_nombre Juguetes.Nombre%TYPE;
+    v_descripcion Juguetes.Descripcion%TYPE;
+    v_precio Juguetes.Precio%TYPE;
+    v_stock Juguetes.Stock%TYPE;
+BEGIN
+    OPEN cursor_juguetes_bajo_stock;
+    LOOP
+        FETCH cursor_juguetes_bajo_stock INTO v_juguete_id, v_nombre, v_descripcion, v_precio, v_stock;
+        EXIT WHEN cursor_juguetes_bajo_stock%NOTFOUND;
+        DBMS_OUTPUT.PUT_LINE('Juguete ID: ' || v_juguete_id || 
+                             ', Nombre: ' || v_nombre || 
+                             ', Descripción: ' || v_descripcion || 
+                             ', Precio: ' || v_precio ||
+                             ', Stock: ' || v_stock);
+    END LOOP;
+    CLOSE cursor_juguetes_bajo_stock;
+END;
+
+/
+
+--Cursor reporta si la una mascota tiene cita pendiente o ya salio de cita
+DECLARE
+  CURSOR c_mascotas IS
+    SELECT * FROM mascotas WHERE estado = 'Pendiente';
+  v_mascota mascotas%ROWTYPE;
+BEGIN
+  OPEN c_mascotas;
+  LOOP
+    FETCH c_mascotas INTO v_mascota;
+    EXIT WHEN c_mascotas%NOTFOUND;
+  END LOOP;
+  CLOSE c_mascotas;
+END;
+
+--Cursor que reporta si el stock es bajo en medicamentos
+DECLARE
+    CURSOR cursor_medicamentos_bajo_stock IS
+    SELECT medicamento_id, nombre, descripcion, stock, precio
+    FROM Medicamentos
+    WHERE stock < 10; 
+
+    v_medicamento_id Medicamentos.medicamento_id%TYPE;
+    v_nombre Medicamentos.nombre%TYPE;
+    v_descripcion Medicamentos.descripcion%TYPE;
+    v_stock Medicamentos.stock%TYPE;
+    v_precio Medicamentos.precio%TYPE;
+BEGIN
+    OPEN cursor_medicamentos_bajo_stock;
+    LOOP
+        FETCH cursor_medicamentos_bajo_stock INTO v_medicamento_id, v_nombre, v_descripcion, v_stock, v_precio;
+        EXIT WHEN cursor_medicamentos_bajo_stock%NOTFOUND;
+        DBMS_OUTPUT.PUT_LINE('ID: ' || v_medicamento_id || 
+                             ', Nombre: ' || v_nombre || 
+                             ', Descripción: ' || v_descripcion || 
+                             ', Stock actual: ' || v_stock ||
+                             ', Precio: ' || v_precio);
+    END LOOP;
+    CLOSE cursor_medicamentos_bajo_stock;
+END;
+
+---cursor par alistar todos los clientes de la veterinaria
+
+
+DECLARE
+  CURSOR c_clientes IS
+    SELECT * FROM clientes;
+  v_cliente clientes%ROWTYPE;
+BEGIN
+  OPEN c_clientes;
+  LOOP
+    FETCH c_clientes INTO v_cliente;
+    EXIT WHEN c_clientes%NOTFOUND;
+    DBMS_OUTPUT.PUT_LINE('ID: ' || v_cliente.cliente_id || ', Nombre: ' || v_cliente.nombre);
+  END LOOP;
+  CLOSE c_clientes;
+END;
+------------------------------------------------------------------------
+---Cursor para obtener el historial médico de una mascota específica po el id
+
+DECLARE
+  CURSOR c_historial IS
+    SELECT * FROM historial WHERE mascota_id = 2;
+  v_registro historial%ROWTYPE;
+BEGIN
+  OPEN c_historial;
+  LOOP
+    FETCH c_historial INTO v_registro;
+    EXIT WHEN c_historial%NOTFOUND;
+    DBMS_OUTPUT.PUT_LINE('Fecha: ' || v_registro.fecha || ', Descripción: ' || v_registro.descripcion);
+  END LOOP;
+  CLOSE c_historial;
+END; 
+
+
+
+
+
+
+----------------------------------------------------------------------------------
+---cursor para listar todos los alimentos que hay en inventarioç
+
+DECLARE
+  CURSOR c_alimentos IS
+    SELECT * FROM inventario;
+  v_alimento inventario%ROWTYPE;
+BEGIN
+  OPEN c_alimentos;
+  LOOP
+    FETCH c_alimentos INTO v_alimento;
+    EXIT WHEN c_alimentos%NOTFOUND;
+    DBMS_OUTPUT.PUT_LINE('Nombre: ' || v_alimento.nombre_producto);
+  END LOOP;
+  CLOSE c_alimentos;
+END;
+
+
+
+
+
+----------------------------------------------------------------------------------
+--Cursor para listar todas las citas programadas para hoy
+
+DECLARE
+  CURSOR c_citas IS
+    SELECT * FROM citas WHERE fecha = TRUNC(SYSDATE);
+  v_cita citas%ROWTYPE;
+BEGIN
+  OPEN c_citas;
+  LOOP
+    FETCH c_citas INTO v_cita;
+    EXIT WHEN c_citas%NOTFOUND;
+     DBMS_OUTPUT.PUT_LINE('Cliente: ' || v_cita.cliente_id || ', Mascota: ' || v_cita.mascota_id || ', Fecha: ' || TO_CHAR(v_cita.fecha, 'DD-MM-YYYY') || ', Motivo: ' || v_cita.motivo);
+  END LOOP;
+  CLOSE c_citas;
+END; 
+
+
+
+EXECUTE ActualizarMascota(p_Mascota_id => 1, p_Nombre => 'Leo', p_Especie => 'Gato', p_Edad => 6, p_Cliente_id => 2, p_Raza => 'Egipcio');
+
+
+
+
